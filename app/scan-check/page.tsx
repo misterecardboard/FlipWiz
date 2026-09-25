@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ChangeEvent } from "react";
 
 export default function ScanCheckPage() {
   const [purchasePrice, setPurchasePrice] = useState("");
@@ -9,9 +10,7 @@ export default function ScanCheckPage() {
   const [imageName, setImageName] = useState("");
   const [analyzed, setAnalyzed] = useState(false);
 
-  const handleImage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (file) {
@@ -41,7 +40,7 @@ export default function ScanCheckPage() {
         color: "#111827",
       }}
     >
-      {/* Header */}
+      {/* HEADER */}
       <header
         style={{
           borderBottom: "1px solid #e5e7eb",
@@ -90,7 +89,7 @@ export default function ScanCheckPage() {
         </div>
       </header>
 
-      {/* Main */}
+      {/* MAIN */}
       <main
         style={{
           maxWidth: "1000px",
@@ -98,7 +97,7 @@ export default function ScanCheckPage() {
           padding: "65px 20px 90px",
         }}
       >
-        {/* Hero */}
+        {/* HERO */}
         <div
           style={{
             textAlign: "center",
@@ -147,7 +146,7 @@ export default function ScanCheckPage() {
           </p>
         </div>
 
-        {/* Analyzer Card */}
+        {/* ANALYZER */}
         <div
           style={{
             background: "#ffffff",
@@ -176,7 +175,7 @@ export default function ScanCheckPage() {
             Upload a photo and provide the basic buying information.
           </p>
 
-          {/* Photo Upload */}
+          {/* PHOTO UPLOAD */}
           <label
             style={{
               display: "block",
@@ -227,7 +226,7 @@ export default function ScanCheckPage() {
             </div>
           </label>
 
-          {/* Inputs */}
+          {/* INPUTS */}
           <div
             style={{
               display: "grid",
@@ -236,7 +235,7 @@ export default function ScanCheckPage() {
               gap: "18px",
             }}
           >
-            {/* Description */}
+            {/* DESCRIPTION */}
             <div>
               <label
                 style={{
@@ -266,7 +265,7 @@ export default function ScanCheckPage() {
               />
             </div>
 
-            {/* Purchase Price */}
+            {/* PURCHASE PRICE */}
             <div>
               <label
                 style={{
@@ -300,7 +299,7 @@ export default function ScanCheckPage() {
               />
             </div>
 
-            {/* Marketplace */}
+            {/* MARKETPLACE */}
             <div>
               <label
                 style={{
@@ -338,7 +337,7 @@ export default function ScanCheckPage() {
             </div>
           </div>
 
-          {/* Analyze Button */}
+          {/* ANALYZE BUTTON */}
           <button
             onClick={handleAnalyze}
             style={{
@@ -358,7 +357,7 @@ export default function ScanCheckPage() {
           </button>
         </div>
 
-        {/* Results */}
+        {/* RESULTS */}
         {analyzed && (
           <div
             style={{
@@ -408,7 +407,7 @@ export default function ScanCheckPage() {
               will be connected next.
             </p>
 
-            {/* Result Cards */}
+            {/* RESULT CARDS */}
             <div
               style={{
                 display: "grid",
@@ -417,7 +416,7 @@ export default function ScanCheckPage() {
                 gap: "14px",
               }}
             >
-              {/* Resale Value */}
+              {/* RESALE VALUE */}
               <div
                 style={{
                   background: "#f8f9fc",
@@ -445,7 +444,7 @@ export default function ScanCheckPage() {
                 </div>
               </div>
 
-              {/* Profit */}
+              {/* PROFIT */}
               <div
                 style={{
                   background: "#f8f9fc",
@@ -473,7 +472,7 @@ export default function ScanCheckPage() {
                 </div>
               </div>
 
-              {/* Max Buy */}
+              {/* MAX BUY */}
               <div
                 style={{
                   background: "#f8f9fc",
@@ -502,7 +501,7 @@ export default function ScanCheckPage() {
               </div>
             </div>
 
-            {/* Coming Next */}
+            {/* COMING NEXT */}
             <div
               style={{
                 marginTop: "18px",
