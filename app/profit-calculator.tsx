@@ -48,15 +48,58 @@ export function ProfitCalculator() {
   const money = (n: number) => `$${n.toFixed(2)}`;
 
   return (
-    <div className="calcbox">
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          marginBottom: "24px",
-          flexWrap: "wrap",
-        }}
-      >
+<div style={{ marginBottom: "24px" }}>
+  <div
+    style={{
+      fontSize: "14px",
+      fontWeight: 700,
+      marginBottom: "10px",
+      color: "#0b1813",
+    }}
+  >
+    What do you want to calculate?
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      flexWrap: "wrap",
+    }}
+  >
+    <button
+      type="button"
+      onClick={() => setMode("profit")}
+      style={{
+        border: "1px solid #d5ded9",
+        borderRadius: "999px",
+        padding: "10px 18px",
+        fontWeight: 700,
+        cursor: "pointer",
+        background: mode === "profit" ? "#0b1813" : "#ffffff",
+        color: mode === "profit" ? "#ffffff" : "#0b1813",
+      }}
+    >
+      💰 Profit
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setMode("maxbuy")}
+      style={{
+        border: "1px solid #d5ded9",
+        borderRadius: "999px",
+        padding: "10px 18px",
+        fontWeight: 700,
+        cursor: "pointer",
+        background: mode === "maxbuy" ? "#0b1813" : "#ffffff",
+        color: mode === "maxbuy" ? "#ffffff" : "#0b1813",
+      }}
+    >
+      🛒 Maximum Buy Price
+    </button>
+  </div>
+</div>
         <button
           type="button"
           onClick={() => setMode("profit")}
