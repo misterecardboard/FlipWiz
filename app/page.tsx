@@ -1,25 +1,25 @@
 import { ProfitCalculator } from "./profit-calculator";
-import CardDealAnalyzer from "./card-deal-analyzer";
+
 const tools = [
   [
     "💰",
-    "Profit Calculator",
-    "See your estimated profit after costs and marketplace fees.",
+    "Flip Calculator",
+    "Calculate profit, ROI, break-even price, and maximum buy price.",
   ],
   [
     "🎯",
     "Break-Even Calculator",
-    "Find the minimum sale price needed to cover your costs.",
+    "Find the minimum sale price needed to cover your complete costs.",
   ],
   [
     "🛒",
     "Maximum Buy Price",
-    "Know the most you should pay to hit your target profit.",
+    "See the most you should pay to reach your target profit.",
   ],
   [
     "⚖️",
     "Marketplace Comparison",
-    "Compare estimated take-home profit across marketplaces.",
+    "Compare estimated fees and take-home profit across marketplaces.",
   ],
 ];
 
@@ -37,13 +37,15 @@ export default function Home() {
           <a href="#coming">Coming Soon</a>
         </div>
 
-        <a className="navbtn" href="#tools">
+        <a className="navbtn" href="#calculator">
           Get Started
         </a>
       </nav>
 
       <section className="hero">
-        <div className="badge">✨ Built for resellers & flippers</div>
+        <div className="badge">
+          ✨ Built for resellers &amp; flippers
+        </div>
 
         <h1>
           Know <em>before</em>
@@ -52,13 +54,14 @@ export default function Home() {
         </h1>
 
         <p>
-          FlipWiz helps you calculate real resale profit, break-even prices,
-          and maximum buy prices before you put your money on the line.
+          FlipWiz helps you calculate real resale profit,
+          break-even prices, maximum buy prices, and total
+          flip costs before you put your money on the line.
         </p>
 
         <div className="heroBtns">
           <a className="primary" href="#calculator">
-            Calculate My Profit →
+            Calculate My Flip →
           </a>
 
           <a className="secondary" href="#tools">
@@ -68,13 +71,13 @@ export default function Home() {
 
         <div className="heroStats">
           <div>
-            <strong>4</strong>
-            <span>Free tools</span>
+            <strong>1</strong>
+            <span>Powerful calculator</span>
           </div>
 
           <div>
-            <strong>$0</strong>
-            <span>to get started</span>
+            <strong>5</strong>
+            <span>marketplace options</span>
           </div>
 
           <div>
@@ -90,8 +93,9 @@ export default function Home() {
         <h2>Make the numbers work for you.</h2>
 
         <p className="sectionIntro">
-          Whether you sell cards, collectibles, thrift finds, or everyday
-          products, FlipWiz helps you check the deal before you buy.
+          Whether you sell cards, collectibles, thrift finds,
+          or everyday products, FlipWiz helps you check the
+          deal before you buy.
         </p>
 
         <div className="toolgrid">
@@ -102,26 +106,32 @@ export default function Home() {
               key={title}
             >
               <div className="icon">{icon}</div>
+
               <h3>{title}</h3>
+
               <p>{desc}</p>
+
               <span>Use tool →</span>
             </a>
           ))}
         </div>
       </section>
 
-      <section id="calculator" className="calculatorSection">
+      <section
+        id="calculator"
+        className="calculatorSection"
+      >
         <div className="eyebrow">START HERE</div>
 
         <h2>Check your next flip.</h2>
 
         <p className="sectionIntro">
-          Enter a few numbers and FlipWiz will estimate your profit, margin,
-          ROI, or maximum buy price.
+          Enter your costs, expected sale price, marketplace,
+          and goals. FlipWiz will calculate the numbers that
+          matter before you buy.
         </p>
 
         <ProfitCalculator />
-        <CardDealAnalyzer />
       </section>
 
       <section id="how" className="section how">
@@ -132,26 +142,34 @@ export default function Home() {
         <div className="steps">
           <div>
             <b>01</b>
+
             <h3>Enter your numbers</h3>
+
             <p>
-              Tell us what you expect to pay, sell for, and spend on shipping
-              and fees.
+              Add your purchase price, shipping, repairs,
+              grading, packaging, and other costs.
             </p>
           </div>
 
           <div>
             <b>02</b>
+
             <h3>FlipWiz does the math</h3>
+
             <p>
-              See estimated profit, margin, ROI, and total costs instantly.
+              See profit, margin, ROI, marketplace fees,
+              break-even price, and maximum buy price.
             </p>
           </div>
 
           <div>
             <b>03</b>
+
             <h3>Make the call</h3>
+
             <p>
-              Know your numbers before you commit your money.
+              Know your numbers before you commit your
+              money.
             </p>
           </div>
         </div>
@@ -167,8 +185,9 @@ export default function Home() {
         </h2>
 
         <p>
-          Take a photo of an item. FlipWiz will identify it, research its
-          resale potential, estimate fees, and calculate what you should pay.
+          Take a photo of an item. FlipWiz will identify it,
+          research its resale potential, estimate fees, and
+          help you determine what you should pay.
         </p>
 
         <div className="aiFlow">
@@ -188,10 +207,14 @@ export default function Home() {
             aria-label="Email address"
           />
 
-          <button>Join the waitlist</button>
+          <button type="button">
+            Join the waitlist
+          </button>
         </div>
 
-        <small>We'll only use your email for FlipWiz updates.</small>
+        <small>
+          We'll only use your email for FlipWiz updates.
+        </small>
       </section>
 
       <footer>
@@ -208,7 +231,8 @@ export default function Home() {
         </div>
 
         <small>
-          © 2026 FlipWiz. Estimates are for informational purposes only.
+          © 2026 FlipWiz. Estimates are for informational
+          purposes only.
         </small>
       </footer>
     </main>
