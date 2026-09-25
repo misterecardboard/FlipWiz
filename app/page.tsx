@@ -1,5 +1,5 @@
 import { ProfitCalculator } from "./profit-calculator";
-
+import MaxBuyPrice from "./max-buy-price";
 const tools = [
   ["💰", "Profit Calculator", "See your estimated profit after costs and marketplace fees."],
   ["🎯", "Break-Even Calculator", "Find the minimum sale price needed to cover your costs."],
@@ -34,6 +34,7 @@ export default function Home() {
         <div className="eyebrow">START HERE</div><h2>Check your next flip.</h2>
         <p className="sectionIntro">Enter a few numbers and FlipWiz will estimate your profit, margin, and ROI.</p>
         <ProfitCalculator />
+        <MaxBuyPrice />
       </section>
 
       <section id="how" className="section how">
