@@ -79,6 +79,8 @@ export default function Home() {
               display: "flex",
               alignItems: "center",
               gap: "20px",
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
             }}
           >
             <a
@@ -103,6 +105,18 @@ export default function Home() {
               }}
             >
               Calculator
+            </a>
+
+            <a
+              href="/scan-check"
+              style={{
+                color: "#4f46e5",
+                textDecoration: "none",
+                fontSize: "14px",
+                fontWeight: 700,
+              }}
+            >
+              Scan & Check
             </a>
 
             <a
@@ -212,6 +226,24 @@ export default function Home() {
             }}
           >
             Check a Flip
+          </a>
+
+          <a
+            href="/scan-check"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "13px 22px",
+              borderRadius: "11px",
+              background: "#6366f1",
+              color: "#ffffff",
+              textDecoration: "none",
+              fontWeight: 800,
+              fontSize: "14px",
+            }}
+          >
+            📷 Scan & Check
           </a>
 
           <a
