@@ -1,64 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import type { ChangeEvent } from "react";
 
 export default function ScanCheckPage() {
-  const [purchasePrice, setPurchasePrice] = useState("");
+  const [item, setItem] = useState("");
+  const [buyPrice, setBuyPrice] = useState("");
   const [marketplace, setMarketplace] = useState("eBay");
-  const [description, setDescription] = useState("");
-  const [imageName, setImageName] = useState("");
-  const [analyzed, setAnalyzed] = useState(false);
+  const [checked, setChecked] = useState(false);
 
-  const handleImage = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-
-    if (file) {
-      setImageName(file.name);
-      setAnalyzed(false);
-    }
-  };
-
-  const handleAnalyze = () => {
-    setAnalyzed(true);
-  };
-
-  const money = (value: number) =>
-    value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-  const price = Number(purchasePrice || 0);
+  const price = Number(buyPrice) || 0;
+  const estimatedValue = price * 2;
+  const estimatedFees = estimatedValue * 0.1325;
+  const estimatedProfit = estimatedValue - price - estimatedFees;
+  const maxBuy = estimatedValue * 0.6;
 
   return (
-    <div
+    <main
       style={{
         minHeight: "100vh",
-        background:
-          "linear-gradient(180deg, #f7f9fc 0%, #ffffff 50%, #f7f9fc 100%)",
+        background: "#f7f8fc",
         color: "#111827",
+        fontFamily: "Arial, sans-serif",
       }}
     >
       <header
         style={{
+          background: "#ffffff",
           borderBottom: "1px solid #e5e7eb",
-          background: "rgba(255,255,255,0.95)",
-          position: "sticky",
-          top: 0,
-          zIndex: 20,
-          backdropFilter: "blur(10px)",
+          padding: "18px 24px",
         }}
       >
         <div
           style={{
-            maxWidth: "1100px",
+            maxWidth: "1000px",
             margin: "0 auto",
-            padding: "16px 20px",
             display: "flex",
-            alignItems: "center",
             justifyContent: "space-between",
-            gap: "20px",
+            alignItems: "center",
           }}
         >
           <a
@@ -68,7 +46,6 @@ export default function ScanCheckPage() {
               color: "#111827",
               fontSize: "24px",
               fontWeight: 900,
-              letterSpacing: "-0.7px",
             }}
           >
             Flip<span style={{ color: "#6366f1" }}>Wiz</span>
@@ -77,40 +54,33 @@ export default function ScanCheckPage() {
           <a
             href="/"
             style={{
-              textDecoration: "none",
               color: "#4b5563",
-              fontSize: "14px",
+              textDecoration: "none",
               fontWeight: 700,
             }}
           >
-            ← Back to FlipWiz
+            ← Back
           </a>
         </div>
       </header>
 
-      <main
+      <section
         style={{
-          maxWidth: "1000px",
+          maxWidth: "800px",
           margin: "0 auto",
-          padding: "65px 20px 90px",
+          padding: "70px 20px",
         }}
       >
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: "35px",
-          }}
-        >
+        <div style={{ textAlign: "center", marginBottom: "35px" }}>
           <div
             style={{
               display: "inline-block",
-              padding: "7px 12px",
-              borderRadius: "999px",
               background: "#eef2ff",
               color: "#4f46e5",
-              fontSize: "11px",
-              fontWeight: 900,
-              letterSpacing: "0.8px",
+              padding: "7px 12px",
+              borderRadius: "999px",
+              fontSize: "12px",
+              fontWeight: 800,
               marginBottom: "12px",
             }}
           >
@@ -119,11 +89,10 @@ export default function ScanCheckPage() {
 
           <h1
             style={{
+              fontSize: "52px",
               margin: 0,
-              fontSize: "clamp(38px, 6vw, 58px)",
-              lineHeight: 1.05,
-              letterSpacing: "-2px",
               fontWeight: 900,
+              letterSpacing: "-2px",
             }}
           >
             Scan & Check
@@ -131,15 +100,15 @@ export default function ScanCheckPage() {
 
           <p
             style={{
-              maxWidth: "650px",
-              margin: "16px auto 0",
               color: "#6b7280",
               fontSize: "17px",
               lineHeight: 1.6,
+              maxWidth: "600px",
+              margin: "15px auto",
             }}
           >
-            Take a photo of an item and let FlipWiz help you decide whether
-            the deal makes sense before you buy.
+            Check an item before you buy it and see what the numbers could
+            look like when you resell it.
           </p>
         </div>
 
@@ -148,324 +117,186 @@ export default function ScanCheckPage() {
             background: "#ffffff",
             border: "1px solid #e5e7eb",
             borderRadius: "20px",
-            padding: "24px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+            padding: "28px",
+            boxShadow: "0 10px 30px rgba(0,0,0,.05)",
           }}
         >
-          <h2 style={{ margin: "0 0 6px", fontSize: "22px" }}>
-            Analyze an Item
-          </h2>
-
-          <p
+          <label
             style={{
-              margin: "0 0 22px",
-              color: "#6b7280",
-              fontSize: "14px",
+              display: "block",
+              fontWeight: 700,
+              marginBottom: "8px",
             }}
           >
-            Upload a photo and provide the basic buying information.
-          </p>
+            Item
+          </label>
+
+          <input
+            value={item}
+            onChange={(e) => setItem(e.target.value)}
+            placeholder="Example: 1989 Ken Griffey Jr. card"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "14px",
+              borderRadius: "10px",
+              border: "1px solid #d1d5db",
+              marginBottom: "20px",
+              fontSize: "15px",
+            }}
+          />
 
           <label
             style={{
               display: "block",
-              cursor: "pointer",
-              border: "2px dashed #cfd4e1",
-              borderRadius: "16px",
-              padding: "35px 20px",
-              textAlign: "center",
-              background: "#fafbfe",
-              marginBottom: "22px",
+              fontWeight: 700,
+              marginBottom: "8px",
             }}
           >
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleImage}
-              style={{ display: "none" }}
-            />
-
-            <div style={{ fontSize: "38px", marginBottom: "8px" }}>📷</div>
-
-            <div
-              style={{
-                fontWeight: 800,
-                fontSize: "16px",
-                color: "#111827",
-              }}
-            >
-              {imageName || "Upload or take a photo"}
-            </div>
-
-            <div
-              style={{
-                marginTop: "6px",
-                color: "#9ca3af",
-                fontSize: "13px",
-              }}
-            >
-              JPG, PNG, or WEBP
-            </div>
+            Purchase Price
           </label>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-              gap: "18px",
-            }}
-          >
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  color: "#4b5563",
-                  marginBottom: "7px",
-                }}
-              >
-                What is it?
-              </label>
-
-              <input
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Example: 1989 Ken Griffey Jr. card"
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  borderRadius: "10px",
-                  border: "1px solid #d9dce5",
-                  fontSize: "14px",
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  color: "#4b5563",
-                  marginBottom: "7px",
-                }}
-              >
-                Purchase Price
-              </label>
-
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={purchasePrice}
-                onChange={(e) => setPurchasePrice(e.target.value)}
-                placeholder="0.00"
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  borderRadius: "10px",
-                  border: "1px solid #d9dce5",
-                  fontSize: "14px",
-                  boxSizing: "border-box",
-                }}
-              />
-            </div>
-
-            <div>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  color: "#4b5563",
-                  marginBottom: "7px",
-                }}
-              >
-                Planned Marketplace
-              </label>
-
-              <select
-                value={marketplace}
-                onChange={(e) => setMarketplace(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  borderRadius: "10px",
-                  border: "1px solid #d9dce5",
-                  fontSize: "14px",
-                  background: "#ffffff",
-                  boxSizing: "border-box",
-                }}
-              >
-                <option>eBay</option>
-                <option>Whatnot</option>
-                <option>CollX</option>
-                <option>CollX Gold</option>
-                <option>Other</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            onClick={handleAnalyze}
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={buyPrice}
+            onChange={(e) => setBuyPrice(e.target.value)}
+            placeholder="25.00"
             style={{
               width: "100%",
-              marginTop: "22px",
+              boxSizing: "border-box",
+              padding: "14px",
+              borderRadius: "10px",
+              border: "1px solid #d1d5db",
+              marginBottom: "20px",
+              fontSize: "15px",
+            }}
+          />
+
+          <label
+            style={{
+              display: "block",
+              fontWeight: 700,
+              marginBottom: "8px",
+            }}
+          >
+            Planned Marketplace
+          </label>
+
+          <select
+            value={marketplace}
+            onChange={(e) => setMarketplace(e.target.value)}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "14px",
+              borderRadius: "10px",
+              border: "1px solid #d1d5db",
+              marginBottom: "20px",
+              fontSize: "15px",
+              background: "#ffffff",
+            }}
+          >
+            <option>eBay</option>
+            <option>Whatnot</option>
+            <option>CollX</option>
+            <option>Other</option>
+          </select>
+
+          <button
+            onClick={() => setChecked(true)}
+            style={{
+              width: "100%",
               padding: "15px",
-              borderRadius: "11px",
               border: "none",
+              borderRadius: "10px",
               background: "#111827",
               color: "#ffffff",
-              fontSize: "15px",
+              fontSize: "16px",
               fontWeight: 800,
               cursor: "pointer",
             }}
           >
-            Analyze Item
+            Check This Deal
           </button>
         </div>
 
-        {analyzed && (
+        {checked && (
           <div
             style={{
-              marginTop: "24px",
+              marginTop: "25px",
               background: "#ffffff",
               border: "1px solid #e5e7eb",
               borderRadius: "20px",
-              padding: "24px",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+              padding: "28px",
             }}
           >
             <div
               style={{
-                display: "inline-block",
-                padding: "6px 10px",
-                borderRadius: "999px",
-                background: "#fff7ed",
-                color: "#c2410c",
-                fontSize: "10px",
-                fontWeight: 900,
-                letterSpacing: "0.7px",
-                marginBottom: "12px",
+                color: "#4f46e5",
+                fontWeight: 800,
+                fontSize: "12px",
+                marginBottom: "8px",
               }}
             >
-              DEMO ANALYSIS
+              FLIPWIZ PREVIEW
             </div>
 
-            <h2 style={{ margin: "0 0 8px", fontSize: "24px" }}>
-              {description || "Item Analysis"}
+            <h2 style={{ margin: "0 0 8px" }}>
+              {item || "Item Analysis"}
             </h2>
 
-            <p
-              style={{
-                margin: "0 0 20px",
-                color: "#6b7280",
-                fontSize: "14px",
-                lineHeight: 1.6,
-              }}
-            >
-              This is the preview version of FlipWiz AI. The actual AI
-              identification and market research will be connected next.
+            <p style={{ color: "#6b7280" }}>
+              This is the first working version of Scan & Check. AI image
+              identification and live market research will be connected next.
             </p>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(180px, 1fr))",
                 gap: "14px",
+                marginTop: "20px",
               }}
             >
               <div
                 style={{
-                  background: "#f8f9fc",
-                  borderRadius: "14px",
+                  background: "#f3f4f6",
                   padding: "18px",
+                  borderRadius: "12px",
                 }}
               >
-                <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                  Estimated Resale Value
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "5px",
-                    fontSize: "25px",
-                    fontWeight: 900,
-                  }}
-                >
-                  {money(price * 2)}
-                </div>
+                <small>Estimated Resale</small>
+                <h2>${estimatedValue.toFixed(2)}</h2>
               </div>
 
               <div
                 style={{
-                  background: "#f8f9fc",
-                  borderRadius: "14px",
+                  background: "#f3f4f6",
                   padding: "18px",
+                  borderRadius: "12px",
                 }}
               >
-                <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                  Estimated Profit
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "5px",
-                    fontSize: "25px",
-                    fontWeight: 900,
-                  }}
-                >
-                  {money(price * 0.7)}
-                </div>
+                <small>Estimated Profit</small>
+                <h2>${estimatedProfit.toFixed(2)}</h2>
               </div>
 
               <div
                 style={{
-                  background: "#f8f9fc",
-                  borderRadius: "14px",
+                  background: "#f3f4f6",
                   padding: "18px",
+                  borderRadius: "12px",
                 }}
               >
-                <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                  Suggested Max Buy
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "5px",
-                    fontSize: "25px",
-                    fontWeight: 900,
-                  }}
-                >
-                  {money(price * 0.6)}
-                </div>
+                <small>Suggested Max Buy</small>
+                <h2>${maxBuy.toFixed(2)}</h2>
               </div>
-            </div>
-
-            <div
-              style={{
-                marginTop: "18px",
-                padding: "16px",
-                borderRadius: "12px",
-                background: "#eef2ff",
-                color: "#3730a3",
-                fontSize: "13px",
-                lineHeight: 1.6,
-              }}
-            >
-              <strong>Coming next:</strong> FlipWiz AI will identify the item
-              from the photo, research comparable sales, estimate the market
-              value, calculate marketplace fees, and provide a buying
-              recommendation based on your numbers.
             </div>
           </div>
         )}
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
