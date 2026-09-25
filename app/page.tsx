@@ -121,6 +121,7 @@ export default function Home() {
         </p>
 
         <ProfitCalculator />
+        <CardDealAnalyzer />
       </section>
 
       <section id="how" className="section how">
