@@ -1,5 +1,5 @@
 import { ProfitCalculator } from "./profit-calculator";
-
+import CardDealAnalyzer from "./card-deal-analyzer";
 const tools = [
   [
     "💰",
