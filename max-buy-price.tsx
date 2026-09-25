@@ -2,140 +2,124 @@
 
 import { useMemo, useState } from "react";
 
-const marketplaceFees: Record<string, number> = {
-  eBay: 13.25,
-  Whatnot: 11,
-  Mercari: 10,
+const fees: Record<string, number> = {
+  eBay: 0.1325,
+  Whatnot: 0.11,
+  Mercari: 0.1,
   "Facebook Marketplace": 0,
-  Other: 10,
+  Other: 0.1,
 };
 
 export default function MaxBuyPrice() {
-  const [salePrice, setSalePrice] = useState("");
-  const [shipping, setShipping] = useState("");
-  const [otherCosts, setOtherCosts] = useState("");
-  const [profitGoal, setProfitGoal] = useState("");
+  const [sale, setSale] = useState("100");
+  const [shipping, setShipping] = useState("6");
+  const [otherCosts, setOtherCosts] = useState("1");
+  const [profitGoal, setProfitGoal] = useState("25");
   const [marketplace, setMarketplace] = useState("eBay");
 
   const result = useMemo(() => {
-    const sale = parseFloat(salePrice) || 0;
-    const ship = parseFloat(shipping) || 0;
-    const costs = parseFloat(otherCosts) || 0;
-    const profit = parseFloat(profitGoal) || 0;
+    const salePrice = Math.max(0, Number(sale) || 0);
+    const shippingCost = Math.max(0, Number(shipping) || 0);
+    const costs = Math.max(0, Number(otherCosts) || 0);
+    const desiredProfit = Math.max(0, Number(profitGoal) || 0);
 
-    const feeRate = marketplaceFees[marketplace] / 100;
-    const fees = sale * feeRate;
+    const fee = salePrice * (fees[marketplace] ?? 0.1);
 
-    const maxBuy = sale - fees - ship - costs - profit;
+    const maxBuy =
+      salePrice - fee - shippingCost - costs - desiredProfit;
 
     return {
-      fees,
+      fee,
       maxBuy: Math.max(0, maxBuy),
     };
-  }, [salePrice, shipping, otherCosts, profitGoal, marketplace]);
+  }, [sale, shipping, otherCosts, profitGoal, marketplace]);
+
+  const money = (n: number) => `$${n.toFixed(2)}`;
 
   return (
-    <section className="tool-section" id="max-buy-price">
-      <div className="tool-card">
-        <div className="tool-card-header">
-          <div>
-            <span className="eyebrow">BUY SMARTER</span>
-            <h2>Maximum Buy Price</h2>
-            <p>
-              Find the most you should pay for an item while still hitting
-              your target profit.
-            </p>
-          </div>
-        </div>
+    <div className="calcbox">
+      <div className="eyebrow">BUY SMARTER</div>
 
-        <div className="calculator-grid">
-          <div className="calculator-inputs">
-            <label>
-              Expected Sale Price
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="$100"
-                value={salePrice}
-                onChange={(e) => setSalePrice(e.target.value)}
-              />
-            </label>
+      <h2 style={{ marginTop: "10px" }}>Maximum Buy Price</h2>
 
-            <label>
-              Shipping Cost
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="$8"
-                value={shipping}
-                onChange={(e) => setShipping(e.target.value)}
-              />
-            </label>
+      <p className="sectionIntro">
+        Find the most you should pay while still reaching your target profit.
+      </p>
 
-            <label>
-              Other Costs
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="$0"
-                value={otherCosts}
-                onChange={(e) => setOtherCosts(e.target.value)}
-              />
-            </label>
+      <div className="inputs">
+        <label>
+          Expected sale price
+          <input
+            value={sale}
+            onChange={(e) => setSale(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
 
-            <label>
-              Desired Profit
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="$25"
-                value={profitGoal}
-                onChange={(e) => setProfitGoal(e.target.value)}
-              />
-            </label>
+        <label>
+          Shipping cost
+          <input
+            value={shipping}
+            onChange={(e) => setShipping(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
 
-            <label>
-              Marketplace
-              <select
-                value={marketplace}
-                onChange={(e) => setMarketplace(e.target.value)}
-              >
-                {Object.keys(marketplaceFees).map((name) => (
-                  <option key={name} value={name}>
-                    {name} ({marketplaceFees[name]}% fee)
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+        <label>
+          Other costs
+          <input
+            value={otherCosts}
+            onChange={(e) => setOtherCosts(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
 
-          <div className="calculator-result">
-            <span>MAXIMUM BUY PRICE</span>
+        <label>
+          Desired profit
+          <input
+            value={profitGoal}
+            onChange={(e) => setProfitGoal(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
 
-            <strong>${result.maxBuy.toFixed(2)}</strong>
-
-            <p>
-              That's the most you should pay based on the numbers you entered.
-            </p>
-
-            <div className="result-detail">
-              <span>Estimated marketplace fees</span>
-              <strong>${result.fees.toFixed(2)}</strong>
-            </div>
-          </div>
-        </div>
-
-        <p className="calculator-disclaimer">
-          Marketplace fees are estimates and may vary by category,
-          promotions, payment processing, shipping arrangements, and other
-          marketplace-specific charges. Always verify current fees before
-          making a purchase.
-        </p>
+        <label>
+          Marketplace
+          <select
+            value={marketplace}
+            onChange={(e) => setMarketplace(e.target.value)}
+          >
+            {Object.keys(fees).map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
-    </section>
+
+      <div className="result positive">
+        <span>Maximum buy price</span>
+
+        <strong>{money(result.maxBuy)}</strong>
+
+        <div className="metrics">
+          <div>
+            <b>{money(result.fee)}</b>
+            <small>Est. marketplace fees</small>
+          </div>
+
+          <div>
+            <b>{money(Number(profitGoal) || 0)}</b>
+            <small>Target profit</small>
+          </div>
+        </div>
+      </div>
+
+      <p className="disclaimer">
+        Estimates only. Marketplace fees and other costs can vary. Verify
+        current rates before buying.
+      </p>
+    </div>
   );
 }
