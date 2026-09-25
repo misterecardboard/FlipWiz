@@ -6,9 +6,22 @@ const fees: Record<string, number> = {
   eBay: 0.1325,
   Whatnot: 0.11,
   Mercari: 0.1,
+  CollX: 0.1,
+  "CollX Gold": 0.08,
   "Facebook Marketplace": 0,
   Other: 0.1,
 };
+
+function calculateFee(sale: number, marketplace: string) {
+  if (marketplace === "CollX Gold") {
+    const firstTier = Math.min(sale, 2500);
+    const secondTier = Math.max(0, sale - 2500);
+
+    return firstTier * 0.08 + secondTier * 0.03;
+  }
+
+  return sale * (fees[marketplace] ?? 0.1);
+}
 
 export function ProfitCalculator() {
   const [mode, setMode] = useState<"profit" | "maxbuy">("profit");
@@ -27,8 +40,7 @@ export function ProfitCalculator() {
     const pack = Math.max(0, Number(packaging) || 0);
     const target = Math.max(0, Number(targetProfit) || 0);
 
-    const feeRate = fees[marketplace] ?? 0.1;
-    const fee = s * feeRate;
+    const fee = calculateFee(s, marketplace);
 
     const total = b + ship + pack + fee;
     const profit = s - total;
