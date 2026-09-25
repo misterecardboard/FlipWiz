@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-const fees: Record<string, number> = {
+const MARKETPLACE_RATES: Record<string, number> = {
   eBay: 0.1325,
   Whatnot: 0.11,
   CollX: 0.1,
@@ -10,720 +10,857 @@ const fees: Record<string, number> = {
   Other: 0.1,
 };
 
-function calculateFee(sale: number, marketplace: string) {
+function calculateFee(salePrice: number, marketplace: string) {
+  if (salePrice <= 0) return 0;
+
   if (marketplace === "CollX Gold") {
-    const firstTier = Math.min(sale, 2500);
-    const secondTier = Math.max(0, sale - 2500);
+    const firstTier = Math.min(salePrice, 2500);
+    const secondTier = Math.max(salePrice - 2500, 0);
 
     return firstTier * 0.08 + secondTier * 0.03;
   }
 
-  return sale * (fees[marketplace] ?? 0.1);
+  return salePrice * (MARKETPLACE_RATES[marketplace] ?? 0.1);
 }
 
-export function ProfitCalculator() {
-  const [buy, setBuy] = useState("25");
-  const [sale, setSale] = useState("100");
+export default function ProfitCalculator() {
+  const [purchasePrice, setPurchasePrice] = useState(0);
+  const [inboundShipping, setInboundShipping] = useState(0);
+  const [repairCost, setRepairCost] = useState(0);
+  const [gradingCost, setGradingCost] = useState(0);
+  const [otherCost, setOtherCost] = useState(0);
 
-  const [shippingToYou, setShippingToYou] = useState("0");
-  const [sellerShipping, setSellerShipping] = useState("6");
-
-  const [repairs, setRepairs] = useState("0");
-  const [grading, setGrading] = useState("0");
-  const [otherCosts, setOtherCosts] = useState("0");
-
-  const [packaging, setPackaging] = useState("1");
+  const [salePrice, setSalePrice] = useState(0);
+  const [outboundShipping, setOutboundShipping] = useState(0);
+  const [packagingCost, setPackagingCost] = useState(0);
   const [marketplace, setMarketplace] = useState("eBay");
 
-  const [targetProfit, setTargetProfit] = useState("25");
-  const [targetROI, setTargetROI] = useState("0");
+  const [targetProfit, setTargetProfit] = useState(0);
+  const [targetROI, setTargetROI] = useState(0);
 
-  const result = useMemo(() => {
-    const purchase = Math.max(0, Number(buy) || 0);
-    const salePrice = Math.max(0, Number(sale) || 0);
+  const results = useMemo(() => {
+    const marketplaceFee = calculateFee(salePrice, marketplace);
 
-    const inboundShipping = Math.max(
-      0,
-      Number(shippingToYou) || 0
-    );
-
-    const outboundShipping = Math.max(
-      0,
-      Number(sellerShipping) || 0
-    );
-
-    const repairCost = Math.max(
-      0,
-      Number(repairs) || 0
-    );
-
-    const gradingCost = Math.max(
-      0,
-      Number(grading) || 0
-    );
-
-    const otherCost = Math.max(
-      0,
-      Number(otherCosts) || 0
-    );
-
-    const packagingCost = Math.max(
-      0,
-      Number(packaging) || 0
-    );
-
-    const targetProfitAmount = Math.max(
-      0,
-      Number(targetProfit) || 0
-    );
-
-    const targetROIAmount = Math.max(
-      0,
-      Number(targetROI) || 0
-    );
-
-    const marketplaceFee = calculateFee(
-      salePrice,
-      marketplace
-    );
-
-    const totalCost =
-      purchase +
+    const acquisitionCost =
+      purchasePrice +
       inboundShipping +
-      outboundShipping +
       repairCost +
       gradingCost +
-      otherCost +
+      otherCost;
+
+    const saleCosts =
+      outboundShipping +
       packagingCost +
       marketplaceFee;
 
+    const totalCost = acquisitionCost + saleCosts;
+
     const netSaleProceeds =
-      salePrice -
-      outboundShipping -
-      packagingCost -
-      marketplaceFee;
+      salePrice - outboundShipping - packagingCost - marketplaceFee;
 
-    const profit = salePrice - totalCost;
+    const profit = netSaleProceeds - acquisitionCost;
 
-    const margin =
-      salePrice > 0
-        ? (profit / salePrice) * 100
-        : 0;
+    const profitMargin =
+      salePrice > 0 ? (profit / salePrice) * 100 : 0;
 
     const roi =
-      purchase +
-        inboundShipping +
-        repairCost +
-        gradingCost +
-        otherCost >
-      0
-        ? (profit /
-            (purchase +
-              inboundShipping +
-              repairCost +
-              gradingCost +
-              otherCost)) *
-          100
+      acquisitionCost > 0
+        ? (profit / acquisitionCost) * 100
         : 0;
 
-    const breakEvenSale =
-      purchase +
-      inboundShipping +
-      outboundShipping +
-      repairCost +
-      gradingCost +
-      otherCost +
-      packagingCost;
+    /*
+      Break-even sale price:
 
-    let maxBuyPrice =
-      salePrice -
-      inboundShipping -
-      outboundShipping -
-      repairCost -
-      gradingCost -
-      otherCost -
-      packagingCost -
-      marketplaceFee -
-      targetProfitAmount;
+      sale price - marketplace fee - outbound shipping
+      - packaging - acquisition costs = 0
 
-    if (marketplace === "CollX Gold" && salePrice > 0) {
-      maxBuyPrice =
-        salePrice -
+      For normal percentage-based marketplaces:
+      salePrice * (1 - feeRate) =
+      acquisition costs + outbound shipping + packaging
+
+      CollX Gold is tiered, so it gets a separate calculation.
+    */
+
+    const fixedBreakEvenCosts =
+      acquisitionCost + outboundShipping + packagingCost;
+
+    let breakEvenSale = 0;
+
+    if (marketplace === "CollX Gold") {
+      if (fixedBreakEvenCosts <= 2300) {
+        breakEvenSale =
+          fixedBreakEvenCosts / 0.92;
+      } else {
+        breakEvenSale =
+          2500 +
+          (fixedBreakEvenCosts - 2300) / 0.97;
+      }
+    } else {
+      const feeRate =
+        MARKETPLACE_RATES[marketplace] ?? 0.1;
+
+      breakEvenSale =
+        feeRate < 1
+          ? fixedBreakEvenCosts / (1 - feeRate)
+          : 0;
+    }
+
+    /*
+      Maximum purchase price for a target profit.
+
+      We solve:
+
+      sale price
+      - selling costs
+      - acquisition costs
+      - target profit = 0
+
+      Therefore:
+
+      max purchase =
+      net sale proceeds
+      - inbound shipping
+      - repairs
+      - grading
+      - other costs
+      - target profit
+    */
+
+    const maxBuyForTargetProfit = Math.max(
+      0,
+      netSaleProceeds -
         inboundShipping -
-        outboundShipping -
         repairCost -
         gradingCost -
         otherCost -
-        packagingCost -
-        marketplaceFee -
-        targetProfitAmount;
-    }
+        targetProfit
+    );
 
-    maxBuyPrice = Math.max(0, maxBuyPrice);
+    /*
+      Maximum purchase price for a target ROI.
 
-    let maxBuyForROI = 0;
+      ROI is defined here as:
 
-    if (targetROIAmount > 0) {
-      const saleAfterSellingCosts =
-        salePrice -
-        outboundShipping -
-        packagingCost -
-        marketplaceFee;
+      Profit / acquisition investment
 
-      const fixedCosts =
-        inboundShipping +
-        repairCost +
-        gradingCost +
-        otherCost;
+      We solve:
 
-      maxBuyForROI = Math.max(
-        0,
-        (saleAfterSellingCosts - fixedCosts) /
-          (1 + targetROIAmount / 100)
-      );
+      Profit = ROI × acquisition investment
+
+      For standard marketplaces:
+
+      net sale proceeds - fixed acquisition costs - purchase
+      =
+      target ROI × (fixed acquisition costs + purchase)
+
+      CollX Gold requires tier handling because its fee changes
+      after $2,500 in sales.
+    */
+
+    const fixedAcquisitionCosts =
+      inboundShipping +
+      repairCost +
+      gradingCost +
+      otherCost;
+
+    const roiMultiplier = 1 + targetROI / 100;
+
+    let maxBuyForTargetROI = 0;
+
+    if (targetROI > 0 && salePrice > 0) {
+      if (marketplace === "CollX Gold") {
+        const netSaleProceedsGold =
+          salePrice -
+          outboundShipping -
+          packagingCost -
+          marketplaceFee;
+
+        maxBuyForTargetROI = Math.max(
+          0,
+          netSaleProceedsGold / roiMultiplier -
+            fixedAcquisitionCosts
+        );
+      } else {
+        const netSaleProceedsStandard =
+          salePrice -
+          outboundShipping -
+          packagingCost -
+          marketplaceFee;
+
+        maxBuyForTargetROI = Math.max(
+          0,
+          netSaleProceedsStandard / roiMultiplier -
+            fixedAcquisitionCosts
+        );
+      }
     }
 
     return {
       marketplaceFee,
+      acquisitionCost,
+      saleCosts,
       totalCost,
       netSaleProceeds,
       profit,
-      margin,
+      profitMargin,
       roi,
       breakEvenSale,
-      maxBuyPrice,
-      maxBuyForROI,
+      maxBuyForTargetProfit,
+      maxBuyForTargetROI,
     };
   }, [
-    buy,
-    sale,
-    shippingToYou,
-    sellerShipping,
-    repairs,
-    grading,
-    otherCosts,
-    packaging,
+    purchasePrice,
+    inboundShipping,
+    repairCost,
+    gradingCost,
+    otherCost,
+    salePrice,
+    outboundShipping,
+    packagingCost,
     marketplace,
     targetProfit,
     targetROI,
   ]);
 
-  const money = (n: number) =>
-    `$${n.toFixed(2)}`;
+  const money = (value: number) =>
+    value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+  const percent = (value: number) =>
+    `${value.toFixed(1)}%`;
+
+  const inputStyle = {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: "10px",
+    border: "1px solid #d9d9e2",
+    background: "#ffffff",
+    color: "#111827",
+    fontSize: "15px",
+    boxSizing: "border-box" as const,
+  };
+
+  const labelStyle = {
+    display: "block",
+    fontSize: "13px",
+    fontWeight: 600,
+    color: "#4b5563",
+    marginBottom: "7px",
+  };
+
+  const sectionBox = {
+    background: "#f8f9fc",
+    border: "1px solid #e7e9f0",
+    borderRadius: "16px",
+    padding: "20px",
+  };
 
   return (
-    <div className="calcbox">
-      <div
-        style={{
-          marginBottom: "24px",
-        }}
-      >
-        <div
+    <div
+      style={{
+        background: "#ffffff",
+        border: "1px solid #e5e7eb",
+        borderRadius: "20px",
+        padding: "24px",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+      }}
+    >
+      {/* YOUR INVESTMENT */}
+
+      <div style={sectionBox}>
+        <h3
           style={{
-            fontSize: "14px",
-            fontWeight: 700,
-            marginBottom: "6px",
-            color: "#0b1813",
+            margin: "0 0 5px",
+            fontSize: "20px",
+            color: "#111827",
           }}
         >
-          Flip Calculator
-        </div>
+          Your Investment
+        </h3>
 
         <p
           style={{
-            margin: 0,
-            color: "#53635c",
+            margin: "0 0 18px",
+            color: "#6b7280",
             fontSize: "14px",
-            lineHeight: 1.5,
           }}
         >
-          Enter your costs and expected sale price to see
-          your complete flip economics before you buy.
+          What will this flip cost you?
         </p>
-      </div>
-
-      <div
-        style={{
-          fontSize: "13px",
-          fontWeight: 700,
-          color: "#53635c",
-          marginBottom: "12px",
-          textTransform: "uppercase",
-          letterSpacing: "0.04em",
-        }}
-      >
-        Your Investment
-      </div>
-
-      <div className="inputs">
-        <label>
-          Purchase price
-          <input
-            value={buy}
-            onChange={(e) =>
-              setBuy(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Shipping to you
-          <input
-            value={shippingToYou}
-            onChange={(e) =>
-              setShippingToYou(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Repairs / cleaning
-          <input
-            value={repairs}
-            onChange={(e) =>
-              setRepairs(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Grading cost
-          <input
-            value={grading}
-            onChange={(e) =>
-              setGrading(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Other costs
-          <input
-            value={otherCosts}
-            onChange={(e) =>
-              setOtherCosts(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-      </div>
-
-      <div
-        style={{
-          fontSize: "13px",
-          fontWeight: 700,
-          color: "#53635c",
-          marginTop: "28px",
-          marginBottom: "12px",
-          textTransform: "uppercase",
-          letterSpacing: "0.04em",
-        }}
-      >
-        Your Sale
-      </div>
-
-      <div className="inputs">
-        <label>
-          Expected sale price
-          <input
-            value={sale}
-            onChange={(e) =>
-              setSale(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Seller shipping
-          <input
-            value={sellerShipping}
-            onChange={(e) =>
-              setSellerShipping(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Packaging
-          <input
-            value={packaging}
-            onChange={(e) =>
-              setPackaging(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Marketplace
-          <select
-            value={marketplace}
-            onChange={(e) =>
-              setMarketplace(e.target.value)
-            }
-          >
-            {Object.keys(fees).map((name) => (
-              <option
-                key={name}
-                value={name}
-              >
-                {name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-
-      <div
-        style={{
-          fontSize: "13px",
-          fontWeight: 700,
-          color: "#53635c",
-          marginTop: "28px",
-          marginBottom: "12px",
-          textTransform: "uppercase",
-          letterSpacing: "0.04em",
-        }}
-      >
-        Your Goal
-      </div>
-
-      <div className="inputs">
-        <label>
-          Target profit
-          <input
-            value={targetProfit}
-            onChange={(e) =>
-              setTargetProfit(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-
-        <label>
-          Target ROI %
-          <input
-            value={targetROI}
-            onChange={(e) =>
-              setTargetROI(e.target.value)
-            }
-            inputMode="decimal"
-          />
-        </label>
-      </div>
-
-      <div
-        className={
-          "result " +
-          (result.profit >= 0
-            ? "positive"
-            : "negative")
-        }
-        style={{
-          marginTop: "28px",
-        }}
-      >
-        <span>Estimated Profit</span>
-
-        <strong>
-          {result.profit >= 0 ? "+" : ""}
-          {money(result.profit)}
-        </strong>
-
-        <div className="metrics">
-          <div>
-            <b>
-              {result.margin.toFixed(1)}%
-            </b>
-            <small>Profit Margin</small>
-          </div>
-
-          <div>
-            <b>
-              {result.roi.toFixed(1)}%
-            </b>
-            <small>ROI</small>
-          </div>
-
-          <div>
-            <b>
-              {money(result.marketplaceFee)}
-            </b>
-            <small>Marketplace Fees</small>
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          marginTop: "16px",
-          padding: "18px",
-          border: "1px solid #d5ded9",
-          borderRadius: "12px",
-          background: "#ffffff",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "13px",
-            fontWeight: 700,
-            marginBottom: "12px",
-            color: "#53635c",
-            textTransform: "uppercase",
-            letterSpacing: "0.04em",
-          }}
-        >
-          Flip Breakdown
-        </div>
 
         <div
           style={{
             display: "grid",
-            gap: "9px",
-            fontSize: "14px",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "16px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Purchase price</span>
-            <strong>
-              {money(Number(buy) || 0)}
-            </strong>
+          <div>
+            <label style={labelStyle}>Purchase Price</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={purchasePrice || ""}
+              onChange={(e) =>
+                setPurchasePrice(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Shipping to you</span>
-            <strong>
-              {money(
-                Number(shippingToYou) || 0
-              )}
-            </strong>
+          <div>
+            <label style={labelStyle}>Shipping to You</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={inboundShipping || ""}
+              onChange={(e) =>
+                setInboundShipping(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Repairs / cleaning</span>
-            <strong>
-              {money(Number(repairs) || 0)}
-            </strong>
+          <div>
+            <label style={labelStyle}>Repairs / Cleaning</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={repairCost || ""}
+              onChange={(e) =>
+                setRepairCost(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Grading</span>
-            <strong>
-              {money(Number(grading) || 0)}
-            </strong>
+          <div>
+            <label style={labelStyle}>Grading Cost</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={gradingCost || ""}
+              onChange={(e) =>
+                setGradingCost(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Other costs</span>
-            <strong>
-              {money(Number(otherCosts) || 0)}
-            </strong>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Seller shipping</span>
-            <strong>
-              {money(Number(sellerShipping) || 0)}
-            </strong>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Packaging</span>
-            <strong>
-              {money(Number(packaging) || 0)}
-            </strong>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Marketplace fees</span>
-            <strong>
-              {money(result.marketplaceFee)}
-            </strong>
-          </div>
-
-          <div
-            style={{
-              borderTop: "1px solid #d5ded9",
-              paddingTop: "12px",
-              marginTop: "4px",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Total costs</span>
-            <strong>
-              {money(result.totalCost)}
-            </strong>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <span>Net sale proceeds</span>
-            <strong>
-              {money(result.netSaleProceeds)}
-            </strong>
+          <div>
+            <label style={labelStyle}>Other Costs</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={otherCost || ""}
+              onChange={(e) =>
+                setOtherCost(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
           </div>
         </div>
       </div>
 
+      {/* YOUR SALE */}
+
+      <div style={{ ...sectionBox, marginTop: "18px" }}>
+        <h3
+          style={{
+            margin: "0 0 5px",
+            fontSize: "20px",
+            color: "#111827",
+          }}
+        >
+          Your Sale
+        </h3>
+
+        <p
+          style={{
+            margin: "0 0 18px",
+            color: "#6b7280",
+            fontSize: "14px",
+          }}
+        >
+          What do you expect to sell it for?
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          <div>
+            <label style={labelStyle}>
+              Expected Sale Price
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={salePrice || ""}
+              onChange={(e) =>
+                setSalePrice(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>
+              Seller Shipping
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={outboundShipping || ""}
+              onChange={(e) =>
+                setOutboundShipping(
+                  Number(e.target.value)
+                )
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Packaging</label>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={packagingCost || ""}
+              onChange={(e) =>
+                setPackagingCost(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Marketplace</label>
+
+            <select
+              value={marketplace}
+              onChange={(e) =>
+                setMarketplace(e.target.value)
+              }
+              style={inputStyle}
+            >
+              <option value="eBay">eBay</option>
+              <option value="Whatnot">Whatnot</option>
+              <option value="CollX">CollX</option>
+              <option value="CollX Gold">
+                CollX Gold
+              </option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* YOUR GOAL */}
+
+      <div style={{ ...sectionBox, marginTop: "18px" }}>
+        <h3
+          style={{
+            margin: "0 0 5px",
+            fontSize: "20px",
+            color: "#111827",
+          }}
+        >
+          Your Goal
+        </h3>
+
+        <p
+          style={{
+            margin: "0 0 18px",
+            color: "#6b7280",
+            fontSize: "14px",
+          }}
+        >
+          Set the return you're looking for.
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          <div>
+            <label style={labelStyle}>
+              Target Profit
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={targetProfit || ""}
+              onChange={(e) =>
+                setTargetProfit(Number(e.target.value))
+              }
+              placeholder="0.00"
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>
+              Target ROI %
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={targetROI || ""}
+              onChange={(e) =>
+                setTargetROI(Number(e.target.value))
+              }
+              placeholder="0"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* RESULTS */}
+
       <div
         style={{
-          marginTop: "16px",
-          display: "grid",
-          gap: "12px",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(180px, 1fr))",
+          marginTop: "24px",
+          background:
+            "linear-gradient(135deg, #111827 0%, #1f2937 100%)",
+          borderRadius: "18px",
+          padding: "24px",
+          color: "#ffffff",
         }}
       >
         <div
           style={{
-            padding: "16px",
-            borderRadius: "12px",
-            background: "#f4f8f6",
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(150px, 1fr))",
+            gap: "14px",
           }}
         >
-          <small
-            style={{
-              display: "block",
-              color: "#53635c",
-              marginBottom: "5px",
-            }}
-          >
-            Break-Even Sale Price
-          </small>
+          <div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#cbd5e1",
+                marginBottom: "5px",
+              }}
+            >
+              Estimated Profit
+            </div>
 
-          <strong
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: 800,
+              }}
+            >
+              {money(results.profit)}
+            </div>
+          </div>
+
+          <div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#cbd5e1",
+                marginBottom: "5px",
+              }}
+            >
+              Profit Margin
+            </div>
+
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: 800,
+              }}
+            >
+              {percent(results.profitMargin)}
+            </div>
+          </div>
+
+          <div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#cbd5e1",
+                marginBottom: "5px",
+              }}
+            >
+              ROI
+            </div>
+
+            <div
+              style={{
+                fontSize: "28px",
+                fontWeight: 800,
+              }}
+            >
+              {percent(results.roi)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* BREAKDOWN */}
+
+      <div
+        style={{
+          marginTop: "20px",
+          border: "1px solid #e5e7eb",
+          borderRadius: "16px",
+          padding: "20px",
+        }}
+      >
+        <h3
+          style={{
+            margin: "0 0 16px",
+            fontSize: "18px",
+            color: "#111827",
+          }}
+        >
+          Flip Breakdown
+        </h3>
+
+        {[
+          ["Purchase Price", purchasePrice],
+          ["Shipping to You", inboundShipping],
+          ["Repairs / Cleaning", repairCost],
+          ["Grading", gradingCost],
+          ["Other Costs", otherCost],
+          ["Seller Shipping", outboundShipping],
+          ["Packaging", packagingCost],
+          ["Marketplace Fees", results.marketplaceFee],
+        ].map(([label, value]) => (
+          <div
+            key={String(label)}
             style={{
-              fontSize: "22px",
-              color: "#0b1813",
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "20px",
+              padding: "8px 0",
+              borderBottom:
+                "1px solid #f0f1f4",
+              fontSize: "14px",
             }}
           >
-            {money(result.breakEvenSale)}
-          </strong>
+            <span style={{ color: "#6b7280" }}>
+              {label}
+            </span>
+
+            <strong style={{ color: "#111827" }}>
+              {money(Number(value))}
+            </strong>
+          </div>
+        ))}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            paddingTop: "14px",
+            marginTop: "4px",
+            fontSize: "16px",
+          }}
+        >
+          <strong>Total Costs</strong>
+          <strong>{money(results.totalCost)}</strong>
         </div>
 
         <div
           style={{
-            padding: "16px",
-            borderRadius: "12px",
-            background: "#f4f8f6",
+            display: "flex",
+            justifyContent: "space-between",
+            paddingTop: "8px",
+            fontSize: "16px",
           }}
         >
-          <small
+          <strong>Net Sale Proceeds</strong>
+          <strong>
+            {money(results.netSaleProceeds)}
+          </strong>
+        </div>
+      </div>
+
+      {/* DECISION METRICS */}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(220px, 1fr))",
+          gap: "16px",
+          marginTop: "18px",
+        }}
+      >
+        <div
+          style={{
+            background: "#f8f9fc",
+            border: "1px solid #e5e7eb",
+            borderRadius: "16px",
+            padding: "18px",
+          }}
+        >
+          <div
             style={{
-              display: "block",
-              color: "#53635c",
+              fontSize: "13px",
+              color: "#6b7280",
+              marginBottom: "5px",
+            }}
+          >
+            Break-Even Sale Price
+          </div>
+
+          <div
+            style={{
+              fontSize: "24px",
+              fontWeight: 800,
+              color: "#111827",
+            }}
+          >
+            {money(results.breakEvenSale)}
+          </div>
+
+          <div
+            style={{
+              marginTop: "6px",
+              fontSize: "12px",
+              color: "#6b7280",
+            }}
+          >
+            Minimum sale price to cover your costs.
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "#f8f9fc",
+            border: "1px solid #e5e7eb",
+            borderRadius: "16px",
+            padding: "18px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#6b7280",
               marginBottom: "5px",
             }}
           >
             Maximum Buy Price
-          </small>
+          </div>
 
-          <strong
-            style={{
-              fontSize: "22px",
-              color: "#0b1813",
-            }}
-          >
-            {money(result.maxBuyPrice)}
-          </strong>
-
-          <small
-            style={{
-              display: "block",
-              marginTop: "5px",
-              color: "#53635c",
-            }}
-          >
-            Based on target profit
-          </small>
-        </div>
-
-        {Number(targetROI) > 0 && (
           <div
             style={{
-              padding: "16px",
-              borderRadius: "12px",
-              background: "#f4f8f6",
+              fontSize: "24px",
+              fontWeight: 800,
+              color: "#111827",
             }}
           >
-            <small
+            {money(results.maxBuyForTargetProfit)}
+          </div>
+
+          <div
+            style={{
+              marginTop: "6px",
+              fontSize: "12px",
+              color: "#6b7280",
+            }}
+          >
+            Based on your target profit.
+          </div>
+        </div>
+
+        {targetROI > 0 && (
+          <div
+            style={{
+              background: "#f8f9fc",
+              border: "1px solid #e5e7eb",
+              borderRadius: "16px",
+              padding: "18px",
+            }}
+          >
+            <div
               style={{
-                display: "block",
-                color: "#53635c",
+                fontSize: "13px",
+                color: "#6b7280",
                 marginBottom: "5px",
               }}
             >
               Max Buy for Target ROI
-            </small>
+            </div>
 
-            <strong
+            <div
               style={{
-                fontSize: "22px",
-                color: "#0b1813",
+                fontSize: "24px",
+                fontWeight: 800,
+                color: "#111827",
               }}
             >
-              {money(result.maxBuyForROI)}
-            </strong>
+              {money(results.maxBuyForTargetROI)}
+            </div>
+
+            <div
+              style={{
+                marginTop: "6px",
+                fontSize: "12px",
+                color: "#6b7280",
+              }}
+            >
+              Based on your {targetROI}% target ROI.
+            </div>
           </div>
         )}
       </div>
 
-      <p className="disclaimer">
-        Estimates only. Marketplace fees, shipping, taxes,
-        grading costs, repairs, and selling prices can vary.
-        Verify current marketplace rates and comparable sales
-        before buying.
+      {/* DISCLAIMER */}
+
+      <p
+        style={{
+          margin: "18px 2px 0",
+          fontSize: "11px",
+          lineHeight: 1.5,
+          color: "#9ca3af",
+        }}
+      >
+        Estimates are for planning purposes only. Marketplace
+        fees can vary by category, seller status, promotions,
+        payment method, and other marketplace-specific rules.
+        Always verify current fees before making a purchase.
       </p>
     </div>
   );
