@@ -1,4 +1,5 @@
 import ProfitCalculator from "./profit-calculator";
+import MarketplaceComparison from "./marketplace-comparison";
 
 const tools = [
   {
@@ -105,6 +106,18 @@ export default function Home() {
             </a>
 
             <a
+              href="#comparison"
+              style={{
+                color: "#4b5563",
+                textDecoration: "none",
+                fontSize: "14px",
+                fontWeight: 600,
+              }}
+            >
+              Compare
+            </a>
+
+            <a
               href="#ai"
               style={{
                 color: "#4b5563",
@@ -202,7 +215,7 @@ export default function Home() {
           </a>
 
           <a
-            href="#tools"
+            href="#comparison"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -217,7 +230,7 @@ export default function Home() {
               border: "1px solid #dfe3ea",
             }}
           >
-            Explore Tools
+            Compare Marketplaces
           </a>
         </div>
       </section>
@@ -389,6 +402,19 @@ export default function Home() {
         <ProfitCalculator />
       </section>
 
+      {/* MARKETPLACE COMPARISON */}
+
+      <section
+        id="comparison"
+        style={{
+          maxWidth: "1080px",
+          margin: "0 auto",
+          padding: "0 20px 90px",
+        }}
+      >
+        <MarketplaceComparison />
+      </section>
+
       {/* HOW IT WORKS */}
 
       <section
@@ -464,7 +490,8 @@ export default function Home() {
               <div
                 key={item.number}
                 style={{
-                  border: "1px solid rgba(255,255,255,0.12)",
+                  border:
+                    "1px solid rgba(255,255,255,0.12)",
                   borderRadius: "16px",
                   padding: "24px",
                   background:
