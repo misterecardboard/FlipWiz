@@ -33,7 +33,10 @@ export function ProfitCalculator() {
     const total = b + ship + pack + fee;
     const profit = s - total;
 
-    const maxBuy = Math.max(0, s - fee - ship - pack - target);
+    const maxBuy = Math.max(
+      0,
+      s - fee - ship - pack - target
+    );
 
     return {
       fee,
@@ -43,94 +46,74 @@ export function ProfitCalculator() {
       margin: s ? (profit / s) * 100 : 0,
       roi: b ? (profit / b) * 100 : 0,
     };
-  }, [buy, sale, shipping, packaging, marketplace, targetProfit]);
+  }, [
+    buy,
+    sale,
+    shipping,
+    packaging,
+    marketplace,
+    targetProfit,
+  ]);
 
   const money = (n: number) => `$${n.toFixed(2)}`;
 
   return (
-<div style={{ marginBottom: "24px" }}>
-  <div
-    style={{
-      fontSize: "14px",
-      fontWeight: 700,
-      marginBottom: "10px",
-      color: "#0b1813",
-    }}
-  >
-    What do you want to calculate?
-  </div>
-
-  <div
-    style={{
-      display: "flex",
-      gap: "8px",
-      flexWrap: "wrap",
-    }}
-  >
-    <button
-      type="button"
-      onClick={() => setMode("profit")}
-      style={{
-        border: "1px solid #d5ded9",
-        borderRadius: "999px",
-        padding: "10px 18px",
-        fontWeight: 700,
-        cursor: "pointer",
-        background: mode === "profit" ? "#0b1813" : "#ffffff",
-        color: mode === "profit" ? "#ffffff" : "#0b1813",
-      }}
-    >
-      💰 Profit
-    </button>
-
-    <button
-      type="button"
-      onClick={() => setMode("maxbuy")}
-      style={{
-        border: "1px solid #d5ded9",
-        borderRadius: "999px",
-        padding: "10px 18px",
-        fontWeight: 700,
-        cursor: "pointer",
-        background: mode === "maxbuy" ? "#0b1813" : "#ffffff",
-        color: mode === "maxbuy" ? "#ffffff" : "#0b1813",
-      }}
-    >
-      🛒 Maximum Buy Price
-    </button>
-  </div>
-</div>
-        <button
-          type="button"
-          onClick={() => setMode("profit")}
+    <div className="calcbox">
+      <div style={{ marginBottom: "24px" }}>
+        <div
           style={{
-            border: "1px solid #d5ded9",
-            borderRadius: "999px",
-            padding: "10px 18px",
+            fontSize: "14px",
             fontWeight: 700,
-            cursor: "pointer",
-            background: mode === "profit" ? "#0b1813" : "#ffffff",
-            color: mode === "profit" ? "#ffffff" : "#0b1813",
+            marginBottom: "10px",
+            color: "#0b1813",
           }}
         >
-          💰 Profit
-        </button>
+          What do you want to calculate?
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setMode("maxbuy")}
+        <div
           style={{
-            border: "1px solid #d5ded9",
-            borderRadius: "999px",
-            padding: "10px 18px",
-            fontWeight: 700,
-            cursor: "pointer",
-            background: mode === "maxbuy" ? "#0b1813" : "#ffffff",
-            color: mode === "maxbuy" ? "#ffffff" : "#0b1813",
+            display: "flex",
+            gap: "8px",
+            flexWrap: "wrap",
           }}
         >
-          🛒 Maximum Buy Price
-        </button>
+          <button
+            type="button"
+            onClick={() => setMode("profit")}
+            style={{
+              border: "1px solid #d5ded9",
+              borderRadius: "999px",
+              padding: "10px 18px",
+              fontWeight: 700,
+              cursor: "pointer",
+              background:
+                mode === "profit" ? "#0b1813" : "#ffffff",
+              color:
+                mode === "profit" ? "#ffffff" : "#0b1813",
+            }}
+          >
+            💰 Profit
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMode("maxbuy")}
+            style={{
+              border: "1px solid #d5ded9",
+              borderRadius: "999px",
+              padding: "10px 18px",
+              fontWeight: 700,
+              cursor: "pointer",
+              background:
+                mode === "maxbuy" ? "#0b1813" : "#ffffff",
+              color:
+                mode === "maxbuy" ? "#ffffff" : "#0b1813",
+            }}
+          >
+            🛒 Maximum Buy Price
+          </button>
+        </div>
       </div>
 
       {mode === "profit" ? (
@@ -176,7 +159,9 @@ export function ProfitCalculator() {
               Marketplace
               <select
                 value={marketplace}
-                onChange={(e) => setMarketplace(e.target.value)}
+                onChange={(e) =>
+                  setMarketplace(e.target.value)
+                }
               >
                 {Object.keys(fees).map((name) => (
                   <option key={name} value={name}>
@@ -189,33 +174,41 @@ export function ProfitCalculator() {
 
           <div
             className={
-              "result " + (result.profit >= 0 ? "positive" : "negative")
+              "result " +
+              (result.profit >= 0
+                ? "positive"
+                : "negative")
             }
           >
-            <span>Estimated profit</span>
-            <strong>{money(result.profit)}</strong>
+            <span>Estimated Profit</span>
+
+            <strong>
+              {result.profit >= 0 ? "+" : ""}
+              {money(result.profit)}
+            </strong>
 
             <div className="metrics">
               <div>
                 <b>{result.margin.toFixed(1)}%</b>
-                <small>Margin</small>
+                <small>Profit Margin</small>
               </div>
 
               <div>
                 <b>{result.roi.toFixed(1)}%</b>
-                <small>ROI</small>
+                <small>Return on Investment</small>
               </div>
 
               <div>
                 <b>{money(result.fee)}</b>
-                <small>Est. fees</small>
+                <small>Marketplace Fees</small>
               </div>
             </div>
           </div>
 
           <p className="disclaimer">
-            Estimates only. Marketplace fees, shipping, taxes, and policies
-            can vary. Verify current rates before buying.
+            Estimates only. Marketplace fees, shipping, taxes,
+            and policies can vary. Verify current rates before
+            buying.
           </p>
         </>
       ) : (
@@ -252,7 +245,9 @@ export function ProfitCalculator() {
               Target profit
               <input
                 value={targetProfit}
-                onChange={(e) => setTargetProfit(e.target.value)}
+                onChange={(e) =>
+                  setTargetProfit(e.target.value)
+                }
                 inputMode="decimal"
               />
             </label>
@@ -261,7 +256,9 @@ export function ProfitCalculator() {
               Marketplace
               <select
                 value={marketplace}
-                onChange={(e) => setMarketplace(e.target.value)}
+                onChange={(e) =>
+                  setMarketplace(e.target.value)
+                }
               >
                 {Object.keys(fees).map((name) => (
                   <option key={name} value={name}>
@@ -273,31 +270,33 @@ export function ProfitCalculator() {
           </div>
 
           <div className="result positive">
-            <span>Maximum buy price</span>
+            <span>Maximum Buy Price</span>
+
             <strong>{money(result.maxBuy)}</strong>
 
             <div className="metrics">
               <div>
                 <b>{money(result.fee)}</b>
-                <small>Est. fees</small>
+                <small>Marketplace Fees</small>
+              </div>
+
+              <div>
+                <b>{money(result.maxBuy)}</b>
+                <small>Maximum Purchase</small>
               </div>
 
               <div>
                 <b>{money(Number(targetProfit) || 0)}</b>
-                <small>Target profit</small>
-              </div>
-
-              <div>
-                <b>{money(result.maxBuy + result.fee)}</b>
-                <small>After fees</small>
+                <small>Target Profit</small>
               </div>
             </div>
           </div>
 
           <p className="disclaimer">
-            Your maximum buy price is the most you could pay while still
-            reaching your target profit based on the numbers entered.
-            Marketplace fees and other costs can vary.
+            Your maximum buy price is the most you could pay
+            while still reaching your target profit based on the
+            numbers entered. Marketplace fees and other costs
+            can vary.
           </p>
         </>
       )}
