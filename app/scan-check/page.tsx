@@ -49,6 +49,7 @@ export default function ScanCheckPage() {
   const [backFile, setBackFile] = useState<File | null>(null);
   const [frontPreview, setFrontPreview] = useState("");
   const [backPreview, setBackPreview] = useState("");
+
   const [sport, setSport] = useState("Auto Detect");
   const [purchasePrice, setPurchasePrice] = useState("");
   const [marketplace, setMarketplace] = useState("eBay");
@@ -77,7 +78,7 @@ export default function ScanCheckPage() {
 
   const analyzeCard = async () => {
     if (!frontFile) {
-      setError("Please upload the front of the card first.");
+      setError("Please upload or take a photo of the front of the card first.");
       return;
     }
 
@@ -104,7 +105,9 @@ export default function ScanCheckPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.error || "Mister E AI could not analyze the card.");
+        throw new Error(
+          data?.error || "Mister E AI could not analyze the card."
+        );
       }
 
       setAnalysis(data);
@@ -123,6 +126,7 @@ export default function ScanCheckPage() {
 
   const estimatedValue = buyPrice > 0 ? buyPrice * 2 : 0;
   const estimatedFees = estimatedValue * 0.1325;
+
   const estimatedProfit =
     estimatedValue > 0
       ? estimatedValue - buyPrice - estimatedFees
@@ -185,6 +189,7 @@ export default function ScanCheckPage() {
           padding: "60px 20px 90px",
         }}
       >
+        {/* PAGE HEADER */}
         <div
           style={{
             textAlign: "center",
@@ -231,6 +236,7 @@ export default function ScanCheckPage() {
           </p>
         </div>
 
+        {/* SCAN CARD */}
         <div
           style={{
             background: "#ffffff",
@@ -242,108 +248,241 @@ export default function ScanCheckPage() {
         >
           <h2 style={{ marginTop: 0 }}>1. Scan the Card</h2>
 
+          <p
+            style={{
+              color: "#6b7280",
+              marginTop: "-8px",
+              marginBottom: "22px",
+            }}
+          >
+            Upload an existing photo or take a new picture.
+          </p>
+
           <div
             style={{
               display: "grid",
               gridTemplateColumns:
-                "repeat(auto-fit, minmax(250px, 1fr))",
+                "repeat(auto-fit, minmax(280px, 1fr))",
               gap: "18px",
             }}
           >
-            <label
+            {/* CARD FRONT */}
+            <div
               style={{
                 border: "2px dashed #cfd4e1",
                 borderRadius: "16px",
                 padding: "25px",
                 textAlign: "center",
-                cursor: "pointer",
                 background: "#fafbfe",
               }}
             >
-              <input
-                type="file"
-                accept="image/*"
-                
-                onChange={(e) => handleFront(e.target.files?.[0])}
-                style={{ display: "none" }}
-              />
+              <div style={{ fontSize: "42px" }}>📷</div>
+
+              <strong
+                style={{
+                  display: "block",
+                  fontSize: "18px",
+                  marginTop: "5px",
+                }}
+              >
+                Card Front
+              </strong>
 
               {frontPreview ? (
                 <img
                   src={frontPreview}
                   alt="Card front"
                   style={{
+                    display: "block",
                     width: "100%",
-                    maxHeight: "300px",
+                    maxHeight: "250px",
                     objectFit: "contain",
                     borderRadius: "10px",
+                    margin: "15px 0",
                   }}
                 />
               ) : (
-                <>
-                  <div style={{ fontSize: "42px" }}>📷</div>
-                  <strong>Card Front</strong>
-                  <div
-                    style={{
-                      color: "#9ca3af",
-                      fontSize: "13px",
-                      marginTop: "5px",
-                    }}
-                  >
-                    Upload or take a photo
-                  </div>
-                </>
+                <p
+                  style={{
+                    color: "#9ca3af",
+                    fontSize: "13px",
+                  }}
+                >
+                  No front image selected
+                </p>
               )}
-            </label>
 
-            <label
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  marginTop: "15px",
+                }}
+              >
+                {/* FRONT - CHOOSE PHOTO */}
+                <label
+                  style={{
+                    background: "#111827",
+                    color: "#ffffff",
+                    padding: "11px 16px",
+                    borderRadius: "9px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-block",
+                  }}
+                >
+                  📁 Choose Photo
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleFront(e.target.files?.[0])
+                    }
+                    style={{ display: "none" }}
+                  />
+                </label>
+
+                {/* FRONT - TAKE PHOTO */}
+                <label
+                  style={{
+                    background: "#6366f1",
+                    color: "#ffffff",
+                    padding: "11px 16px",
+                    borderRadius: "9px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-block",
+                  }}
+                >
+                  📷 Take Photo
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) =>
+                      handleFront(e.target.files?.[0])
+                    }
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* CARD BACK */}
+            <div
               style={{
                 border: "2px dashed #cfd4e1",
                 borderRadius: "16px",
                 padding: "25px",
                 textAlign: "center",
-                cursor: "pointer",
                 background: "#fafbfe",
               }}
             >
-              <input
-                type="file"
-                accept="image/*"
-                
-                onChange={(e) => handleBack(e.target.files?.[0])}
-                style={{ display: "none" }}
-              />
+              <div style={{ fontSize: "42px" }}>🔄</div>
+
+              <strong
+                style={{
+                  display: "block",
+                  fontSize: "18px",
+                  marginTop: "5px",
+                }}
+              >
+                Card Back
+              </strong>
 
               {backPreview ? (
                 <img
                   src={backPreview}
                   alt="Card back"
                   style={{
+                    display: "block",
                     width: "100%",
-                    maxHeight: "300px",
+                    maxHeight: "250px",
                     objectFit: "contain",
                     borderRadius: "10px",
+                    margin: "15px 0",
                   }}
                 />
               ) : (
-                <>
-                  <div style={{ fontSize: "42px" }}>🔄</div>
-                  <strong>Card Back</strong>
-                  <div
-                    style={{
-                      color: "#9ca3af",
-                      fontSize: "13px",
-                      marginTop: "5px",
-                    }}
-                  >
-                    Optional but recommended
-                  </div>
-                </>
+                <p
+                  style={{
+                    color: "#9ca3af",
+                    fontSize: "13px",
+                  }}
+                >
+                  Optional but recommended
+                </p>
               )}
-            </label>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  marginTop: "15px",
+                }}
+              >
+                {/* BACK - CHOOSE PHOTO */}
+                <label
+                  style={{
+                    background: "#111827",
+                    color: "#ffffff",
+                    padding: "11px 16px",
+                    borderRadius: "9px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-block",
+                  }}
+                >
+                  📁 Choose Photo
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      handleBack(e.target.files?.[0])
+                    }
+                    style={{ display: "none" }}
+                  />
+                </label>
+
+                {/* BACK - TAKE PHOTO */}
+                <label
+                  style={{
+                    background: "#6366f1",
+                    color: "#ffffff",
+                    padding: "11px 16px",
+                    borderRadius: "9px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-block",
+                  }}
+                >
+                  📷 Take Photo
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={(e) =>
+                      handleBack(e.target.files?.[0])
+                    }
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </div>
+            </div>
           </div>
 
-          <h2 style={{ marginTop: "30px" }}>2. Buying Information</h2>
+          {/* BUYING INFORMATION */}
+          <h2 style={{ marginTop: "30px" }}>
+            2. Buying Information
+          </h2>
 
           <div
             style={{
@@ -353,6 +492,7 @@ export default function ScanCheckPage() {
               gap: "16px",
             }}
           >
+            {/* SPORT */}
             <div>
               <label
                 style={{
@@ -388,6 +528,7 @@ export default function ScanCheckPage() {
               </select>
             </div>
 
+            {/* PURCHASE PRICE */}
             <div>
               <label
                 style={{
@@ -404,7 +545,9 @@ export default function ScanCheckPage() {
                 min="0"
                 step="0.01"
                 value={purchasePrice}
-                onChange={(e) => setPurchasePrice(e.target.value)}
+                onChange={(e) =>
+                  setPurchasePrice(e.target.value)
+                }
                 placeholder="25.00"
                 style={{
                   width: "100%",
@@ -417,6 +560,7 @@ export default function ScanCheckPage() {
               />
             </div>
 
+            {/* MARKETPLACE */}
             <div>
               <label
                 style={{
@@ -430,7 +574,9 @@ export default function ScanCheckPage() {
 
               <select
                 value={marketplace}
-                onChange={(e) => setMarketplace(e.target.value)}
+                onChange={(e) =>
+                  setMarketplace(e.target.value)
+                }
                 style={{
                   width: "100%",
                   padding: "13px",
@@ -449,6 +595,7 @@ export default function ScanCheckPage() {
             </div>
           </div>
 
+          {/* ANALYZE BUTTON */}
           <button
             onClick={analyzeCard}
             disabled={loading}
@@ -470,6 +617,7 @@ export default function ScanCheckPage() {
               : "🤖 Analyze with Mister E AI"}
           </button>
 
+          {/* ERROR */}
           {error && (
             <div
               style={{
@@ -486,6 +634,7 @@ export default function ScanCheckPage() {
           )}
         </div>
 
+        {/* ANALYSIS RESULTS */}
         {analysis && (
           <div
             style={{
@@ -514,6 +663,7 @@ export default function ScanCheckPage() {
                 "Card Analysis"}
             </h2>
 
+            {/* CARD DETAILS */}
             <div
               style={{
                 display: "grid",
@@ -527,7 +677,10 @@ export default function ScanCheckPage() {
                 ["Brand", analysis.card_information?.brand],
                 ["Set", analysis.card_information?.set],
                 ["Card #", analysis.card_information?.card_number],
-                ["Parallel", analysis.card_information?.parallel_or_variant],
+                [
+                  "Parallel",
+                  analysis.card_information?.parallel_or_variant,
+                ],
                 ["Rookie", analysis.card_information?.rookie_card],
                 ["Serial", analysis.card_information?.serial_number],
                 ["Autograph", analysis.card_information?.autograph],
@@ -561,24 +714,39 @@ export default function ScanCheckPage() {
               ))}
             </div>
 
+            {/* SPECIAL FEATURES */}
             {analysis.card_information?.special_features && (
               <div style={{ marginTop: "22px" }}>
                 <h3>Special Features</h3>
-                <p style={{ color: "#4b5563", lineHeight: 1.6 }}>
+
+                <p
+                  style={{
+                    color: "#4b5563",
+                    lineHeight: 1.6,
+                  }}
+                >
                   {analysis.card_information.special_features}
                 </p>
               </div>
             )}
 
+            {/* CONDITION */}
             {analysis.card_information?.condition_observations && (
               <div style={{ marginTop: "22px" }}>
                 <h3>Condition Observations</h3>
-                <p style={{ color: "#4b5563", lineHeight: 1.6 }}>
+
+                <p
+                  style={{
+                    color: "#4b5563",
+                    lineHeight: 1.6,
+                  }}
+                >
                   {analysis.card_information.condition_observations}
                 </p>
               </div>
             )}
 
+            {/* WHY IT MATTERS */}
             {analysis.why_this_card_matters && (
               <div
                 style={{
@@ -591,30 +759,46 @@ export default function ScanCheckPage() {
                 }}
               >
                 <strong>Why This Card Matters</strong>
+
                 <p style={{ marginBottom: 0 }}>
                   {analysis.why_this_card_matters}
                 </p>
               </div>
             )}
 
+            {/* CARD HISTORY */}
             {analysis.history?.card_history && (
               <div style={{ marginTop: "22px" }}>
                 <h3>Card History</h3>
-                <p style={{ color: "#4b5563", lineHeight: 1.6 }}>
+
+                <p
+                  style={{
+                    color: "#4b5563",
+                    lineHeight: 1.6,
+                  }}
+                >
                   {analysis.history.card_history}
                 </p>
               </div>
             )}
 
+            {/* ATHLETE HISTORY */}
             {analysis.history?.athlete_or_character_history && (
               <div style={{ marginTop: "22px" }}>
                 <h3>Athlete / Character History</h3>
-                <p style={{ color: "#4b5563", lineHeight: 1.6 }}>
+
+                <p
+                  style={{
+                    color: "#4b5563",
+                    lineHeight: 1.6,
+                  }}
+                >
                   {analysis.history.athlete_or_character_history}
                 </p>
               </div>
             )}
 
+            {/* DEAL PREVIEW */}
             {purchasePrice && (
               <div
                 style={{
@@ -641,6 +825,7 @@ export default function ScanCheckPage() {
                     }}
                   >
                     <small>Purchase Price</small>
+
                     <h2>${buyPrice.toFixed(2)}</h2>
                   </div>
 
@@ -652,6 +837,7 @@ export default function ScanCheckPage() {
                     }}
                   >
                     <small>Preview Resale</small>
+
                     <h2>${estimatedValue.toFixed(2)}</h2>
                   </div>
 
@@ -663,6 +849,7 @@ export default function ScanCheckPage() {
                     }}
                   >
                     <small>Preview Profit</small>
+
                     <h2>${estimatedProfit.toFixed(2)}</h2>
                   </div>
                 </div>
@@ -680,6 +867,7 @@ export default function ScanCheckPage() {
               </div>
             )}
 
+            {/* LISTING DESCRIPTION */}
             {analysis.listing_description && (
               <div style={{ marginTop: "25px" }}>
                 <h3>Listing Description</h3>
@@ -697,6 +885,7 @@ export default function ScanCheckPage() {
               </div>
             )}
 
+            {/* SOCIAL MEDIA */}
             {analysis.social_media_post_ideas &&
               analysis.social_media_post_ideas.length > 0 && (
                 <div style={{ marginTop: "25px" }}>
@@ -712,13 +901,21 @@ export default function ScanCheckPage() {
                 </div>
               )}
 
+            {/* HASHTAGS */}
             {analysis.hashtags &&
               analysis.hashtags.length > 0 && (
                 <div style={{ marginTop: "25px" }}>
                   <h3>Hashtags</h3>
 
-                  <p style={{ color: "#4b5563", lineHeight: 1.8 }}>
-                    {analysis.hashtags.map((tag) => `#${tag}`).join(" ")}
+                  <p
+                    style={{
+                      color: "#4b5563",
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    {analysis.hashtags
+                      .map((tag) => `#${tag}`)
+                      .join(" ")}
                   </p>
                 </div>
               )}
