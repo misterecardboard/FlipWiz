@@ -263,7 +263,7 @@ export default function ScanCheckPage() {
               <input
                 type="file"
                 accept="image/*"
-                capture="environment"
+                
                 onChange={(e) => handleFront(e.target.files?.[0])}
                 style={{ display: "none" }}
               />
@@ -309,7 +309,7 @@ export default function ScanCheckPage() {
               <input
                 type="file"
                 accept="image/*"
-                capture="environment"
+                
                 onChange={(e) => handleBack(e.target.files?.[0])}
                 style={{ display: "none" }}
               />
